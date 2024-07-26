@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 
-use tauri::{DragDropEvent, Manager, WindowEvent};
+use tauri::{DragDropEvent, Emitter, Manager, WindowEvent};
 
 const BASE_DIR: &str = "sylabus";
 
@@ -81,7 +81,7 @@ fn get_subject(subject: String) -> Vec<(String, PathBuf)> {
             let path = entry.path();
             (file_name, path)
         })
-        .filter(|(_, path)| path.is_file())   
+        .filter(|(_, path)| path.is_file())
         .filter(|(_, path)| !path.file_name().unwrap().to_str().unwrap().starts_with("."))
         .collect()
 }
@@ -110,7 +110,7 @@ fn main() {
         .on_window_event(|window, event| {
             if let WindowEvent::DragDrop(e) = event {
                 match e {
-                    DragDropEvent::Dropped { paths, position } => {
+                    DragDropEvent::Drop { paths, position } => {
                         let path = paths.first().unwrap();
                         window.emit("fileDropped", path).unwrap();
                     }
