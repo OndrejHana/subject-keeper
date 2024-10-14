@@ -23,10 +23,22 @@ type Entry = {
 }
 
 async function getAllSubjects() {
-    return invoke<Subject[]>("get_all_subjects");
+    try {
+        const s = await invoke<Subject[]>("get_all_subjects");
+        console.log(s);
+        return s;
+    } catch(e) {
+        console.log(e)
+    }
 }
 async function getAllEntries() {
-    return invoke<Entry[]>("get_all_entries");
+    try {
+        const e = await invoke<Entry[]>("get_all_entries");
+        console.log(e);
+        return e;
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 async function openFile(path: string) {

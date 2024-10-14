@@ -56,8 +56,8 @@ impl Config {
         let path = path_resolver.app_config_dir()?.join(APP_CONFIG_FILE);
         Ok(path)
     }
-    pub fn load(path: &Path) -> Result<Self> {
-        let config_raw = std::fs::read(path)?;
+    pub fn load(config_path: &Path) -> Result<Self> {
+        let config_raw = std::fs::read(config_path)?;
         let config: Self = serde_json::from_slice(&config_raw)?;
         Ok(config)
     }

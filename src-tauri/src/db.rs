@@ -1,5 +1,5 @@
 use crate::{config::DB_FILENAME, error::*, model::{DBEntry, DBSubject, Entry, Subject}};
-use std::{fs::{create_dir_all, OpenOptions}, path::{Path, PathBuf}};
+use std::{fs::{self, create_dir_all, OpenOptions}, path::{Path, PathBuf}};
 
 use sqlx::{sqlite::SqlitePoolOptions, Executor, SqlitePool};
 
@@ -66,14 +66,15 @@ CREATE TABLE IF NOT EXISTS assigned_tags(
 "#;
 
 
+#[derive(Debug)]
 pub struct DBHandler {
     pub db: SqlitePool,
 }
 
 impl DBHandler {
-    pub async fn new(config_dir: &Path) -> Result<Self> {
-        create_dir_all(&config_dir)?;
-        let mut db_path = PathBuf::from(config_dir);
+    pub async fn new(db_dir: &Path) -> Result<Self> {
+        create_dir_all(&db_dir)?;
+        let mut db_path = PathBuf::from(db_dir);
         db_path.push(DB_FILENAME);
         OpenOptions::new()
             .create_new(true)
@@ -85,18 +86,27 @@ impl DBHandler {
         db.execute(DB_MIGRATION).await.unwrap();
         Ok(DBHandler { db })
     }
-    pub async fn open(path: &Path) -> Result<Self> {
+
+    pub async fn load(db_dir: &Path) -> Result<Self> {
         let db = SqlitePoolOptions::new()
-            .connect(path.to_str().unwrap())
+            .connect(db_dir.to_str().unwrap())
             .await?;
         Ok(DBHandler { db })
     }
+
+    pub fn exists(db_dir: &Path) -> bool {
+        let mut path = PathBuf::from(db_dir);
+        path.push(DB_FILENAME);
+        path.exists()
+    }
+
     pub async fn get_entries(&self) -> Result<Vec<DBEntry>> {
         let query = "SELECT id, name, path, parent FROM entries";
         Ok(sqlx::query_as::<_, DBEntry>(&query)
             .fetch_all(&self.db)
             .await?)
     }
+
     pub async fn add_entry(&self, e: &Entry) -> Result<()> {
         let dbe = DBEntry {
             id: e.id.to_string(),

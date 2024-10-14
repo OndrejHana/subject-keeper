@@ -1,9 +1,11 @@
+use crate::error::*;
 use std::{collections::HashMap, fs::read_dir, path::{Path, PathBuf}};
 
 use uuid::Uuid;
 
 use crate::{db::DBHandler, model::{DBEntry, DBSubject, Entry, Subject}};
 
+#[derive(Debug)]
 pub struct DataHandler {
     pub dbh: DBHandler,
     pub subjects: HashMap<Uuid, Subject>,
@@ -68,20 +70,18 @@ impl DataHandler {
         }
     }
 
-    pub async fn init(dbh: DBHandler, home_dir: &Path) -> Self {
-        let mut subject_map: HashMap<PathBuf, DBSubject> = dbh
+    pub async fn load_data(&mut self, home_dir: &Path) -> Result<()> {
+        let mut subject_map: HashMap<PathBuf, DBSubject> = self.dbh
             .get_subjects()
-            .await
-            .unwrap()
+            .await?
             .into_iter()
             .map(|s| (PathBuf::from(&s.path), s))
             .collect();
         let mut output_subjects = HashMap::new();
 
-        let mut entry_map: HashMap<PathBuf, DBEntry> = dbh
+        let mut entry_map: HashMap<PathBuf, DBEntry> = self.dbh
             .get_entries()
-            .await
-            .unwrap()
+            .await?
             .into_iter()
             .map(|e| (PathBuf::from(&e.path), e))
             .collect();
@@ -108,7 +108,7 @@ impl DataHandler {
                     Some(s) => Subject::from_db(&s, true),
                     None => {
                         let s = Subject::new(path.clone(), None, true);
-                        dbh.add_subject(&s).await.unwrap();
+                        self.dbh.add_subject(&s).await.unwrap();
                         s
                     }
                 };
@@ -118,7 +118,7 @@ impl DataHandler {
                     &mut output_entries,
                     &mut pending_entries,
                     &subject.path,
-                    &dbh,
+                    &self.dbh,
                     &subject,
                 );
                 output_subjects.insert(subject.id, subject);
@@ -126,7 +126,7 @@ impl DataHandler {
         }
 
         for e in pending_entries {
-            dbh.add_entry(&e).await.unwrap();
+            self.dbh.add_entry(&e).await.unwrap();
         }
 
         subject_map.into_iter().for_each(|(_, dbs)| {
@@ -143,11 +143,21 @@ impl DataHandler {
             );
         });
 
-        DataHandler {
+        self.subjects = output_subjects;
+        self.entries = output_entries;
+
+        Ok(())
+    }
+
+    pub async fn new(dbh: DBHandler, home_dir: &Path) -> Result<Self> {
+        let mut dh = DataHandler {
             dbh,
-            subjects: output_subjects,
-            entries: output_entries,
-        }
+            subjects: HashMap::new(),
+            entries: HashMap::new(),
+        };
+
+        dh.load_data(home_dir);
+        Ok(dh)
     }
 
     pub fn get_all_entries(&self) -> Vec<Entry> {

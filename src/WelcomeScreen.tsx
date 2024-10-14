@@ -1,4 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
+import { emit } from "@tauri-apps/api/event";
+import { homeDir } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/plugin-dialog"
 
 export default function Welcome() {
@@ -12,7 +13,7 @@ export default function Welcome() {
             return
         }
 
-        await invoke("init_main_window", { homeDir: file });
+        await emit("home-dir-selected", homeDir);
     }
 
     return (
