@@ -1,34 +1,45 @@
 {
-  "productName": "subject-keeper",
-  "version": "0.0.0",
-  "identifier": "app.sk.dev",
-  "build": {
-    "beforeDevCommand": "pnpm dev",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm build",
-    "frontendDist": "../dist"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "subject-keeper",
-        "width": 800,
-        "height": 600
-      }
-    ],
-    "security": {
-      "csp": null
+    "productName": "subject-keeper",
+    "version": "0.0.0",
+    "identifier": "app.sk.dev",
+    "build": {
+        "beforeDevCommand": "pnpm dev",
+        "devUrl": "http://localhost:1420",
+        "beforeBuildCommand": "pnpm build",
+        "frontendDist": "../dist"
+    },
+    "app": {
+        "windows": [
+            {
+                "title": "subject-keeper",
+                "label": "main",
+                "width": 1920,
+                "height": 1080,
+                "visible": false
+            },
+           {
+                "label": "welcome",
+                "width": 400,
+                "height": 600,
+                "url": "welcome.html",
+                "visible": false
+            }
+
+        ],
+        "security": {
+            "csp": null
+
+        }
+    },
+    "bundle": {
+        "active": true,
+        "targets": "all",
+        "icon": [
+            "icons/32x32.png",
+            "icons/128x128.png",
+            "icons/128x128@2x.png",
+            "icons/icon.icns",
+            "icons/icon.ico"
+        ]
     }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ]
-  }
 }
