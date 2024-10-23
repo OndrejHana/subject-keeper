@@ -16,7 +16,7 @@ const DEFAULT_SIDEBAR_PERCENT: u64 = 15;
 const DEFAULT_PREVIEW_PERCENT: u64 = 20;
 
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
     pub home_dir: String,
     pub db_dirname: String,

@@ -71,6 +71,7 @@ impl DataHandler {
     }
 
     pub async fn load_data(&mut self, home_dir: &Path) -> Result<()> {
+        println!("loading data");
         let mut subject_map: HashMap<PathBuf, DBSubject> = self.dbh
             .get_subjects()
             .await?
@@ -143,8 +144,12 @@ impl DataHandler {
             );
         });
 
+        println!("loaded");
+        println!("{:?}", output_subjects);
+        println!("{:?}", output_entries);
         self.subjects = output_subjects;
         self.entries = output_entries;
+
 
         Ok(())
     }
@@ -156,7 +161,7 @@ impl DataHandler {
             entries: HashMap::new(),
         };
 
-        dh.load_data(home_dir);
+        dh.load_data(home_dir).await?;
         Ok(dh)
     }
 

@@ -88,8 +88,10 @@ impl DBHandler {
     }
 
     pub async fn load(db_dir: &Path) -> Result<Self> {
+        let mut db_path = PathBuf::from(db_dir);
+        db_path.push(DB_FILENAME);
         let db = SqlitePoolOptions::new()
-            .connect(db_dir.to_str().unwrap())
+            .connect(db_path.to_str().unwrap())
             .await?;
         Ok(DBHandler { db })
     }

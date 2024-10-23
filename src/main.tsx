@@ -4,14 +4,15 @@ import App from "./App";
 import "./App.css";
 import { invoke } from "@tauri-apps/api/core";
 
-try {
-    const shouldStart = await invoke<boolean>("main_window_created");
-    if (!shouldStart) {
-        await invoke("select_home_dir");
-    }
-} catch(e) {
-    console.log(e)
-}
+invoke<boolean>("main_window_created")
+    .then(async (start) => {
+        if (!start) {
+            await invoke("select_home_dir");
+        }
+    })
+    .catch(e => {
+        window.alert(e);
+    })
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

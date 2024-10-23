@@ -88,8 +88,14 @@ function App() {
     useEffect(() => {
         async function getAll() {
             const subjects = await getAllSubjects();
+            if (!subjects) {
+                return
+            }
             setSubjects(subjects);
             const entries = await getAllEntries();
+            if (!entries) {
+                return
+            }
             setEntries(entries);
             console.log("run")
         }
